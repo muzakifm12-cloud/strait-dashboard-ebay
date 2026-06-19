@@ -26,7 +26,7 @@ async function getAppToken() {
 
   if (!clientId || !clientSecret) {
     throw new Error(
-      'EBAY_CLIENT_ID / EBAY_CLIENT_SECRET belum diisi. Buka Netlify Dashboard -> Site configuration -> Environment variables.'
+      'EBAY_CLIENT_ID / EBAY_CLIENT_SECRET is not set. Open Netlify Dashboard -> Site configuration -> Environment variables.'
     );
   }
 
@@ -43,7 +43,7 @@ async function getAppToken() {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Gagal mengambil token eBay (status ${res.status}): ${errText}`);
+    throw new Error(`Failed to fetch eBay token (status ${res.status}): ${errText}`);
   }
 
   const data = await res.json();
@@ -181,7 +181,7 @@ exports.handler = async function (event) {
     const marketplace = (params.marketplace || 'US').toUpperCase();
 
     if (!query) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Parameter q (nama produk) wajib diisi.' }) };
+      return { statusCode: 400, body: JSON.stringify({ error: 'Parameter q (product name) is required.' }) };
     }
 
     const token = await getAppToken();
