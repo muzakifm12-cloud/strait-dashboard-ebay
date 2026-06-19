@@ -36,7 +36,7 @@ function buildScraperRequestUrl(targetUrl) {
 exports.handler = async function (event) {
   try {
     const apiKey = process.env.SCRAPER_API_KEY;
-    console.log('[sold-scraper] apiKey terbaca?', apiKey ? `YA (panjang ${apiKey.length} karakter)` : 'TIDAK (undefined/kosong)');
+    console.log('[sold-scraper] apiKey loaded?', apiKey ? `YES (length ${apiKey.length} chars)` : 'NO (undefined/empty)');
 
     if (!apiKey) {
       return {
@@ -45,7 +45,7 @@ exports.handler = async function (event) {
         body: JSON.stringify({
           available: false,
           message:
-            'SCRAPER_API_KEY belum diisi di Netlify Environment Variables. Fitur Demand & Timing (data sold) tidak aktif.',
+            'SCRAPER_API_KEY is not set in Netlify Environment Variables. The Demand & Timing feature (sold data) is inactive.',
         }),
       };
     }
@@ -53,7 +53,7 @@ exports.handler = async function (event) {
     const query = (event.queryStringParameters?.q || '').trim();
     console.log('[sold-scraper] query:', query);
     if (!query) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Parameter q wajib diisi.' }) };
+      return { statusCode: 400, body: JSON.stringify({ error: 'Parameter q is required.' }) };
     }
 
     const targetUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1`;
@@ -109,7 +109,7 @@ exports.handler = async function (event) {
     // DIAGNOSTIK SEMENTARA: kalau 0 harga ketemu, tunjukkan cuplikan HTML di
     // sekitar BEBERAPA kemunculan simbol dollar ($) -- kemunculan paling awal
     // biasanya masih bagian filter sidebar ("Under $15.00" dst), bukan listing
-    // produk sungguhan. Kita ambil kemunculan ke-8 s.d. ke-12 supaya kemungkinan
+    // the real product. We take the 8th-to-12th occurrences so it's more likely
     // besar sudah melewati filter dan masuk ke area listing produk asli.
     if (!prices.length) {
       const lowerHtml = html.toLowerCase();
@@ -144,13 +144,13 @@ exports.handler = async function (event) {
           available: true,
           soldCount: 0,
           message:
-            'Scraper berhasil dipanggil tapi 0 harga terbaca. Kemungkinan struktur HTML eBay berubah -- cek/update selector CSS di sold-scraper.js, atau cek apakah scraper API mengembalikan HTML yang benar.',
+            'Scraper call succeeded but 0 prices were parsed. eBay\'s HTML structure may have changed -- check/update the CSS selectors in sold-scraper.js, or verify the scraper API is returning valid HTML.',
         }),
       };
     }
 
     const avgSold = prices.reduce((a, b) => a + b, 0) / prices.length;
-    console.log('[sold-scraper] SUKSES, avgSoldPrice:', avgSold.toFixed(2));
+    console.log('[sold-scraper] SUCCESS, avgSoldPrice:', avgSold.toFixed(2));
 
     return {
       statusCode: 200,
@@ -162,11 +162,11 @@ exports.handler = async function (event) {
         minSoldPrice: Math.min(...prices),
         maxSoldPrice: Math.max(...prices),
         note:
-          'Ini snapshot sold listings saat ini (bukan tren historis 12 bulan). Untuk grafik musiman jangka panjang, data ini perlu disimpan ke database setiap hari/minggu -- lihat README bagian "Pengembangan Lanjutan".',
+          'This is a snapshot of currently sold listings (not a 12-month historical trend). For long-term seasonal charts, this data needs to be stored in a database daily/weekly -- see the "Further Development" section in the README.',
       }),
     };
   } catch (err) {
-    console.log('[sold-scraper] ERROR tertangkap:', err.message);
+    console.log('[sold-scraper] ERROR caught:', err.message);
     return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err.message }) };
   }
 };
