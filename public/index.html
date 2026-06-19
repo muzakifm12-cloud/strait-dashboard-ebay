@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Strait eBay Dashboard — Market Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700;9..40,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════════════ TOPBAR ══════════════════ -->
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+
+    <div class="topbar-brand">
+      <div class="logo-icon">
+        <!-- Hanger SVG -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4a2 2 0 0 1 2 2c0 .74-.4 1.38-1 1.73V9l7.5 5.5a1 1 0 0 1-.5 1.5H4a1 1 0 0 1-.5-1.5L11 9V7.73A2 2 0 0 1 12 4Z" fill="rgba(255,255,255,0.9)"/>
+          <rect x="3" y="17" width="18" height="2" rx="1" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">
+        <strong>Strait eBay</strong>
+        <span>Market Dashboard</span>
+      </div>
+    </div>
+
+    <div class="topbar-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search product — e.g. vintage levi 501, nike air jordan 1, pokemon charizard…" />
+    </div>
+
+    <div class="topbar-controls">
+      <select class="select-control" id="conditionFilter">
+        <option value="ALL">Condition: All</option>
+        <option value="NEW">Condition: New</option>
+        <option value="USED">Condition: Used</option>
+      </select>
+      <select class="select-control" id="marketplaceFilter">
+        <option value="US">Market: US</option>
+        <option value="UK">Market: UK</option>
+        <option value="GLOBAL">Market: Global</option>
+      </select>
+      <button class="btn-analyze" id="analyzeBtn">Analyze →</button>
+    </div>
+  </header>
+
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <nav>
+      <ul class="nav-list" id="navList">
+
+        <div class="nav-section-label">Research</div>
+
+        <li class="nav-item active" data-page="overview">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+          Dashboard Overview
+        </li>
+
+        <li class="nav-item" data-page="pricing">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          Pricing Intelligence
+        </li>
+
+        <li class="nav-item" data-page="demand">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Demand &amp; Timing
+        </li>
+
+        <li class="nav-item" data-page="competition">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Competition
+        </li>
+
+        <li class="nav-item" data-page="buyer">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Buyer Intelligence
+        </li>
+
+        <li class="nav-item" data-page="keyword">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/>
+            <line x1="12" y1="4" x2="12" y2="20"/>
+          </svg>
+          Keywords
+        </li>
+
+        <li class="nav-item" data-page="product">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+          Product Intel
+        </li>
+
+        <li class="nav-item" data-page="strategy">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          Strategy Center
+        </li>
+
+        <div class="nav-section-label" style="margin-top:6px;">Manage</div>
+
+        <li class="nav-item" data-page="saved">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+          Saved Products
+        </li>
+
+        <li class="nav-item" data-page="reports">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Reports
+        </li>
+
+        <li class="nav-item" data-page="settings">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          API Settings
+        </li>
+
+      </ul>
+    </nav>
+    <div class="sidebar-footer">Strait eBay Dashboard v1.0 · Live via eBay Browse API</div>
+  </aside>
+
+  <!-- ══════════════════ MAIN ══════════════════ -->
+  <div class="main">
+
+    <!-- Quick-suggestion chips -->
+    <div class="chips-bar">
+      <span class="chip" data-chip="exhaust yamaha r3">exhaust yamaha r3</span>
+      <span class="chip" data-chip="vintage levi 501">vintage levi 501</span>
+      <span class="chip" data-chip="nike air jordan 1">nike air jordan 1</span>
+      <span class="chip" data-chip="iphone 13 pro max">iphone 13 pro max</span>
+      <span class="chip" data-chip="pokemon card charizard">pokemon card charizard</span>
+      <span class="chip" data-chip="vintage rolex watch">vintage rolex watch</span>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- Empty state with custom SVG illustration -->
+      <div class="empty-state" id="emptyState">
+        <svg width="120" height="96" viewBox="0 0 120 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="20" width="60" height="56" rx="6" fill="#E8E0D8" stroke="#C4B9B2" stroke-width="1.5"/>
+          <rect x="18" y="30" width="44" height="5" rx="2.5" fill="#C4B9B2"/>
+          <rect x="18" y="41" width="32" height="4" rx="2" fill="#D4CCC4"/>
+          <rect x="18" y="51" width="38" height="4" rx="2" fill="#D4CCC4"/>
+          <rect x="18" y="61" width="26" height="4" rx="2" fill="#D4CCC4"/>
+          <circle cx="88" cy="58" r="22" fill="#F5F1EC" stroke="#C4B9B2" stroke-width="1.5"/>
+          <circle cx="88" cy="58" r="15" fill="none" stroke="#6E1A1A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 3"/>
+          <line x1="98" y1="70" x2="108" y2="80" stroke="#6E1A1A" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="88" cy="58" r="5" fill="#6E1A1A" opacity=".25"/>
+        </svg>
+        <div class="empty-state-title">No product analyzed yet</div>
+        <div style="font-size:13px; color:var(--text-muted); max-width:320px; margin:0 auto;">Type a product name in the search bar above and click <strong style="color:var(--text-secondary)">Analyze →</strong>, or pick one of the quick suggestions.</div>
+      </div>
+
+      <div id="pages" style="display:none;">
+
+        <!-- OVERVIEW -->
+        <section data-content="overview">
+          <div class="section-title" id="overviewTitle">Dashboard Overview</div>
+          <div class="section-subtitle">Market viability summary based on live eBay data.</div>
+          <div class="grid grid-3" id="scoreGrid"></div>
+          <div class="grid grid-2" style="margin-top:14px;">
+            <div class="card">
+              <div class="card-title">Market Summary</div>
+              <div id="marketSummary" class="loading-state">Loading AI analysis...</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Product Health &amp; Action</div>
+              <div id="healthBlock" class="loading-state">Loading AI analysis...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRICING -->
+        <section data-content="pricing">
+          <div class="section-title">Pricing Intelligence</div>
+          <div class="section-subtitle">Calculated from asking prices of active eBay listings (not sold prices).</div>
+          <div class="kpi-row" id="pricingKpis"></div>
+          <div class="grid grid-2">
+            <div class="card module-card pricing">
+              <div class="card-title">Price Distribution</div>
+              <canvas id="priceHistogramChart" height="220"></canvas>
+            </div>
+            <div class="card module-card pricing">
+              <div class="card-title">Buy It Now vs Auction</div>
+              <canvas id="binAuctionChart" height="220"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- DEMAND -->
+        <section data-content="demand">
+          <div class="section-title">Demand &amp; Timing</div>
+          <div class="section-subtitle">Sold data requires a third-party Scraper API — eBay has no official API for completed listings.</div>
+          <div id="demandBody"></div>
+        </section>
+
+        <!-- COMPETITION -->
+        <section data-content="competition">
+          <div class="section-title">Competition Intelligence</div>
+          <div class="section-subtitle">Market density and seller concentration from active listings.</div>
+          <div class="kpi-row" id="competitionKpis"></div>
+          <div class="grid grid-2">
+            <div class="card module-card competition">
+              <div class="card-title">Top Sellers by Listing Count</div>
+              <div id="topSellersList"></div>
+            </div>
+            <div class="card module-card competition">
+              <div class="card-title">Entry Barrier Assessment</div>
+              <div id="entryBarrierBlock" class="loading-state">Loading AI analysis...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- BUYER -->
+        <section data-content="buyer">
+          <div class="section-title">Buyer Intelligence</div>
+          <div class="section-subtitle">Location &amp; shipping signals from active listings (proxy data — eBay doesn't expose buyer data via public API).</div>
+          <div id="buyerBody"></div>
+        </section>
+
+        <!-- KEYWORD -->
+        <section data-content="keyword">
+          <div class="section-title">Keyword Intelligence</div>
+          <div class="section-subtitle">Word frequency analysis from real eBay listing titles.</div>
+          <div class="grid grid-2">
+            <div class="card module-card keyword">
+              <div class="card-title">Power Keywords</div>
+              <div id="powerKeywords"></div>
+            </div>
+            <div class="card module-card keyword">
+              <div class="card-title">AI-Optimized Listing Title</div>
+              <div id="optimizedTitleBlock" class="loading-state">Loading AI analysis...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRODUCT -->
+        <section data-content="product">
+          <div class="section-title">Product Intelligence</div>
+          <div class="section-subtitle">Condition breakdown from current active listings.</div>
+          <div id="productBody"></div>
+        </section>
+
+        <!-- STRATEGY -->
+        <section data-content="strategy">
+          <div class="section-title">Strategy Center</div>
+          <div class="section-subtitle">AI-generated insights and action plans from the live data above.</div>
+          <div class="card final-rec" id="finalRecCard" style="margin-bottom:16px;">
+            <div class="loading-state">Loading final recommendation...</div>
+          </div>
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="card-title">5 AI Insights</div>
+              <ul class="insight-list" id="insightList"><li class="loading-state">Loading...</li></ul>
+            </div>
+            <div class="card">
+              <div class="card-title">5 Action Plans</div>
+              <ul class="action-list" id="actionList"><li class="loading-state">Loading...</li></ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- SAVED -->
+        <section data-content="saved">
+          <div class="section-title">Saved Products</div>
+          <div class="section-subtitle">Stored locally in this browser — not synced across devices.</div>
+          <div class="card">
+            <div id="savedList">
+              <div class="empty-state" style="padding:32px 20px;">
+                <div class="empty-state-title" style="font-size:14px;">No saved products yet</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- REPORTS -->
+        <section data-content="reports">
+          <div class="section-title">Reports</div>
+          <div class="section-subtitle">Export the analysis for the currently active product.</div>
+          <div class="card" style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="btn-secondary" id="exportCsvBtn">⬇ Export CSV</button>
+            <button class="btn-secondary" id="exportPdfBtn">🖨 Export PDF</button>
+          </div>
+          <div class="banner info" style="margin-top:14px;">CSV includes all listings fetched in the last analysis. For PDF, use your browser's print dialog and choose "Save as PDF".</div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section data-content="settings">
+          <div class="section-title">API Settings</div>
+          <div class="section-subtitle">All credentials live in Netlify Environment Variables — never in the browser.</div>
+          <div class="card">
+            <div class="api-row">
+              <div>
+                <div class="api-name"><span class="status-dot unknown" id="dotEbay"></span>eBay Browse API</div>
+                <div class="api-desc">Active listings, prices, competitors, real product links.</div>
+              </div>
+              <button class="btn-secondary" id="checkEbayBtn">Check Connection</button>
+            </div>
+            <div class="api-row">
+              <div>
+                <div class="api-name"><span class="status-dot unknown" id="dotDeepseek"></span>DeepSeek AI</div>
+                <div class="api-desc">AI Insights &amp; Strategy Center.</div>
+              </div>
+              <button class="btn-secondary" id="checkDeepseekBtn">Check Connection</button>
+            </div>
+            <div class="api-row">
+              <div>
+                <div class="api-name"><span class="status-dot unknown" id="dotScraper"></span>Scraper API <span class="tag gray" style="margin-left:6px;">optional</span></div>
+                <div class="api-desc">Sold/completed data for Demand &amp; Timing.</div>
+              </div>
+              <button class="btn-secondary" id="checkScraperBtn">Check Connection</button>
+            </div>
+          </div>
+          <div class="banner warn" style="margin-top:16px;">
+            To add or update API keys, go to <strong>Netlify Dashboard → Site configuration → Environment variables</strong>. See README.md for the full list of variable names.
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>
