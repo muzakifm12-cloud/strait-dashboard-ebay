@@ -1,19 +1,19 @@
 // public/js/app.js
 //
-// Semua data di sini berasal dari hasil call ke /api/ebay-search,
-// /api/ai-insight, dan /api/sold-scraper (lihat netlify/functions/).
-// No data available dummy/acak yang sengaja ditampilkan sebagai hasil real.
+// All data here comes from calls to /api/ebay-search,
+// /api/ai-insight, and /api/sold-scraper (see netlify/functions/).
+// No dummy/random data is intentionally shown as if it were real.
 
 const state = {
-  result: null, // hasil dari /api/ebay-search
-  ai: null,     // hasil dari /api/ai-insight
-  charts: {},   // instance Chart.js, supaya bisa di-destroy sebelum re-render
+  result: null, // result from /api/ebay-search
+  ai: null,     // result from /api/ai-insight
+  charts: {},   // Chart.js instances, so they can be destroyed before re-render
 };
 
 const qs = (id) => document.getElementById(id);
 const fmtMoney = (v, currency = 'USD') => (v == null ? '-' : `${currency === 'USD' ? '$' : currency + ' '}${v.toFixed(2)}`);
 
-// ===================== NAVIGASI SIDEBAR =====================
+// ===================== SIDEBAR NAVIGATION =====================
 function showPage(pageKey) {
   document.querySelectorAll('.nav-item').forEach((el) => el.classList.toggle('active', el.dataset.page === pageKey));
   document.querySelectorAll('[data-content]').forEach((el) => {
@@ -50,13 +50,13 @@ async function runAnalysis() {
   qs('emptyState').style.display = 'none';
   qs('pages').style.display = 'block';
   qs('analyzeBtn').disabled = true;
-  qs('analyzeBtn').textContent = 'Menganalisis...';
+  qs('analyzeBtn').textContent = 'Analyzing...';
   resetLoadingBlocks();
 
   try {
     const res = await fetch(`/api/ebay-search?q=${encodeURIComponent(query)}&condition=${condition}&marketplace=${marketplace}`);
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Gagal mengambil data eBay.');
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch eBay data.');
 
     state.result = data;
 
@@ -71,8 +71,8 @@ async function runAnalysis() {
     renderProduct(data.listings);
     renderBuyer(data.listings);
 
-    // Strategy/Overview butuh AI -> dipanggil terpisah supaya bagian "real data"
-    // tetap muncul cepat walau AI sedang loading.
+    // Strategy/Overview needs AI -> called separately so the "real data"
+    // section still appears quickly while AI is loading.
     fetchAIInsight(query, data.stats);
     fetchSoldData(query);
   } catch (err) {
@@ -100,7 +100,7 @@ function resetLoadingBlocks() {
   qs('actionList').innerHTML = '<li class="loading-state">Loading...</li>';
   qs('finalRecCard').innerHTML = '<div class="loading-state">Loading final recommendation...</div>';
   qs('scoreGrid').innerHTML = '';
-  qs('demandBody').innerHTML = '<div class="loading-state">Mengecek ketersediaan data sold...</div>';
+  qs('demandBody').innerHTML = '<div class="loading-state">Checking sold-data availability...</div>';
 }
 
 // ===================== OVERVIEW (AI) =====================
@@ -112,7 +112,7 @@ async function fetchAIInsight(query, stats) {
       body: JSON.stringify({ query, stats }),
     });
     const ai = await res.json();
-    if (!res.ok) throw new Error(ai.error || 'Gagal memuat AI insight.');
+    if (!res.ok) throw new Error(ai.error || 'Failed to load AI insight.');
 
     state.ai = ai;
     qs('overviewTitle').textContent = `Dashboard Overview — "${query}"`;
@@ -172,7 +172,7 @@ function renderPricing(stats) {
     type: 'bar',
     data: {
       labels: stats.histogram.map((h) => h.range),
-      datasets: [{ label: 'Jumlah listing', data: stats.histogram.map((h) => h.count), backgroundColor: '#a6275c' }],
+      datasets: [{ label: 'Listing count', data: stats.histogram.map((h) => h.count), backgroundColor: '#a6275c' }],
     },
     options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
   });
@@ -198,7 +198,7 @@ function buildListingRow(item) {
         <div class="l-title">${item.title}</div>
         <div class="l-meta">@${item.seller?.username || 'unknown'} · ${item.condition || ''} · ${item.itemLocationCountry || ''}</div>
       </div>
-      <button class="btn-secondary save-listing-btn" data-save-id="${item.itemId}" style="padding:4px 9px; font-size:11px;">☆ Simpan</button>
+      <button class="btn-secondary save-listing-btn" data-save-id="${item.itemId}" style="padding:4px 9px; font-size:11px;">☆ Save</button>
       <div class="l-price">${fmtMoney(item.price, item.currency)}<span class="l-link-icon">↗</span></div>
     </div>`;
 }
@@ -218,7 +218,7 @@ function renderCompetition(stats, listings) {
       <div class="l-price">${s.count} listing</div>
     </div>`).join('');
 
-  // Daftar listing lengkap untuk dibandingkan -> klik = buka produk asli di eBay (tab baru)
+  // Full listing list for comparison -> click = open the real product on eBay (new tab)
   const listingsHtml = `
     <div class="card" style="margin-top:14px;">
       <div class="card-title">Compare Active Listings (click to open product on eBay)</div>
@@ -248,7 +248,7 @@ function renderCompetition(stats, listings) {
       if (!saved.find((s) => s.itemId === item.itemId)) {
         saved.push(item);
         localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
-        btn.textContent = '★ Tersimpan';
+        btn.textContent = '★ Saved';
       }
     });
   });
@@ -265,7 +265,7 @@ function renderKeyword(stats) {
 function renderProduct(listings) {
   const condCount = new Map();
   listings.forEach((l) => {
-    const c = l.condition || 'Tidak diketahui';
+    const c = l.condition || 'Unknown';
     condCount.set(c, (condCount.get(c) || 0) + 1);
   });
   const rows = Array.from(condCount.entries()).sort((a, b) => b[1] - a[1]);
@@ -281,11 +281,11 @@ function renderProduct(listings) {
     </div>`;
 }
 
-// ===================== BUYER (geographic, dari lokasi seller listing aktif) =====================
+// ===================== BUYER (geographic, from active listing seller locations) =====================
 function renderBuyer(listings) {
   const countryCount = new Map();
   listings.forEach((l) => {
-    const c = l.itemLocationCountry || 'Tidak diketahui';
+    const c = l.itemLocationCountry || 'Unknown';
     countryCount.set(c, (countryCount.get(c) || 0) + 1);
   });
   const entries = Array.from(countryCount.entries()).sort((a, b) => b[1] - a[1]);
@@ -293,7 +293,7 @@ function renderBuyer(listings) {
   qs('buyerBody').innerHTML = `
     <div class="banner info">Note: eBay does not expose BUYER location data to other sellers via its public API. The data below shows SELLER locations from active listings, used as a rough proxy to identify active markets.</div>
     <div class="card module-card buyer">
-      <div class="card-title">Distribusi Lokasi Seller (Listing Aktif)</div>
+      <div class="card-title">Seller Location Distribution (Active Listings)</div>
       <canvas id="geoChart" height="180"></canvas>
     </div>`;
 
@@ -302,13 +302,13 @@ function renderBuyer(listings) {
     type: 'bar',
     data: {
       labels: entries.map((e) => e[0]),
-      datasets: [{ label: 'Jumlah listing', data: entries.map((e) => e[1]), backgroundColor: '#d2691e' }],
+      datasets: [{ label: 'Listing count', data: entries.map((e) => e[1]), backgroundColor: '#d2691e' }],
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
   });
 }
 
-// ===================== DEMAND (scraper opsional) =====================
+// ===================== DEMAND (optional scraper) =====================
 async function fetchSoldData(query) {
   try {
     const res = await fetch(`/api/sold-scraper?q=${encodeURIComponent(query)}`);
@@ -349,7 +349,7 @@ function renderSavedList() {
     <div class="saved-row">
       <img src="${s.image || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" />
       <div><div class="l-title">${s.title}</div><div class="l-meta">${fmtMoney(s.price, s.currency)}</div></div>
-      <a href="${s.itemWebUrl}" target="_blank" rel="noopener" class="tag pink">Lihat di eBay</a>
+      <a href="${s.itemWebUrl}" target="_blank" rel="noopener" class="tag pink">View on eBay</a>
       <button class="remove-btn" data-id="${s.itemId}">✕</button>
     </div>`).join('');
   document.querySelectorAll('.remove-btn').forEach((btn) => {
@@ -380,7 +380,7 @@ qs('exportCsvBtn').addEventListener('click', () => {
 
 qs('exportPdfBtn').addEventListener('click', () => window.print());
 
-// ===================== API SETTINGS: cek koneksi =====================
+// ===================== API SETTINGS: connection check =====================
 function setDot(id, ok) {
   qs(id).className = `status-dot ${ok ? 'ok' : 'bad'}`;
 }
